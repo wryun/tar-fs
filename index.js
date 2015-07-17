@@ -23,9 +23,16 @@ var statAll = function (fs, stat, cwd, ignore, entries) {
   return function loop (callback) {
     if (!queue.length) return callback()
     var next = queue.shift()
-    var nextAbs = path.join(cwd, next)
+    var nextAbs;
+    if (next[0] == '/') {
+      nextAbs = next;
+      next = path.basename(next);
+    } else {
+      nextAbs = path.join(cwd, next)
+    }
 
     stat(nextAbs, function (err, stat) {
+      stat.path = nextAbs
       if (err) return callback(err)
 
       if (!stat.isDirectory()) return callback(null, next, stat)
@@ -34,7 +41,7 @@ var statAll = function (fs, stat, cwd, ignore, entries) {
         if (err) return callback(err)
 
         for (var i = 0; i < files.length; i++) {
-          if (!ignore(path.join(cwd, next, files[i]))) queue.push(path.join(next, files[i]))
+          if (!ignore(path.join(cwd, next, files[i]))) queue.unshift(path.join(next, files[i]))
         }
 
         callback(null, next, stat)
@@ -113,7 +120,7 @@ exports.pack = function (cwd, opts) {
     var entry = pack.entry(header, onnextentry)
     if (!entry) return
 
-    var rs = mapStream(xfs.createReadStream(path.join(cwd, filename)), header)
+    var rs = mapStream(xfs.createReadStream(stat.path), header)
 
     rs.on('error', function (err) { // always forward errors on destroy
       entry.destroy(err)

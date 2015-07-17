@@ -1,7 +1,7 @@
 {
-  "name": "tar-fs",
-  "version": "1.7.0",
-  "description": "filesystem bindings for tar-stream",
+  "name": "@atlassian/tar-fs-hack",
+  "version": "1.7.1-broken",
+  "description": "filesystem bindings for tar-stream + dirty hack",
   "dependencies": {
     "mkdirp": "^0.5.0",
     "pump": "^1.0.0",
